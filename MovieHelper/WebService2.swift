@@ -1,0 +1,194 @@
+//
+//  WebService2.swift
+//  MovieHelper
+//
+//  Created by Mehmet Eroğlu on 24.04.2017.
+//  Copyright © 2017 Mehmet Eroğlu. All rights reserved.
+//
+
+import Foundation
+import Alamofire
+import ObjectMapper
+
+private var baseUrl = "http://54.154.177.20/api/auth/"
+
+class WebService2 {
+    
+    class func request<T: Mappable>(uri: String, methot: HTTPMethod, parameters: [String: Any]?, success: @escaping (T) -> Void, failure: @escaping (Error) -> Void) {
+        
+        let headers: HTTPHeaders = [:]
+        
+        let url = "\(baseUrl)\(uri)"
+        var encoding: ParameterEncoding!
+        
+        switch methot {
+        case .get:
+            encoding = URLEncoding.default
+        case .put:
+            encoding = URLEncoding.default
+        case .delete:
+            encoding = URLEncoding.default
+        default:
+            encoding = JSONEncoding.default
+            break
+        }
+        
+        // Original URL request
+        
+        Alamofire.request(url, method: methot, parameters: parameters, encoding: encoding, headers: headers)
+            .validate()
+            .responseJSON { response in
+                
+                // Success
+                if response.result.isSuccess {
+                    // print("\nResponse Data: \(response.result.value!)")
+                    
+                    // JSON Data
+                    if let object = Mapper<T>().map(JSON: response.result.value as! [String: Any]) {
+                        success(object)
+                        return
+                    }
+                    print("\nBuraya girmemeli")
+                }
+                
+                // Failure
+                if response.result.isFailure {
+                    if let value = response.data {
+                        let responseData = String.init(data: value, encoding: String.Encoding.utf8)
+                        
+                        //   print("\nResponse Data: \(responseData)")
+                        if let error = Mapper<Error>().map(JSONString: responseData!) {
+                            failure(error)
+                            return
+                        }
+                        
+                    }
+                    
+                    if response.result.error != nil {
+                        failure(Error(code: "unknown_error", error: "Beklenmedik bir hata oluştu."))
+                        return
+                    }
+                    
+                    print("\nBuraya girmemeli")
+                }
+        }
+    }
+    
+    class func request<T: Mappable>(uri: String, methot: HTTPMethod, parameters: [String: Any]?, success: @escaping ([T]) -> Void, failure: @escaping (Error) -> Void) {
+        
+        let headers: HTTPHeaders = [:]
+        
+        let url = "\(baseUrl)\(uri)"
+        var encoding: ParameterEncoding!
+        
+        switch methot {
+        case .get:
+            encoding = URLEncoding.default
+        case .put:
+            encoding = URLEncoding.default
+        case .delete:
+            encoding = URLEncoding.default
+        default:
+            encoding = JSONEncoding.default
+            break
+        }
+        
+        // Original URL request
+        
+        Alamofire.request(url, method: methot, parameters: parameters, encoding: encoding, headers: headers)
+            .validate()
+            .responseJSON { response in
+                
+                // Success
+                if response.result.isSuccess {
+                    //  print("\nResponse Data: \(response.result.value!)")
+                    // JSON Data
+                    success(Mapper<T>().mapArray(JSONArray: response.result.value as! [[String : Any]]))
+//                    if let object = Mapper<T>().mapArray(JSONArray: response.result.value as! [[String : Any]]) {
+//                        success(object)
+//                        return
+//                    }
+                    //  print("\nBuraya girmemeli")
+                }
+                
+                // Failure
+                if response.result.isFailure {
+                    if let value = response.data {
+                        let responseData = String.init(data: value, encoding: String.Encoding.utf8)
+                        
+                        //  print("\nResponse Data: \(responseData)")
+                        if let error = Mapper<Error>().map(JSONString: responseData!) {
+                            failure(error)
+                            return
+                        }
+                        
+                    }
+                    
+                    if response.result.error != nil {
+                        failure(Error(code: "unknown_error", error: "Beklenmedik bir hata oluştu."))
+                        return
+                    }
+                    
+                    print("\nBuraya girmemeli")
+                }
+        }
+    }
+    
+    // SendCommentWebService
+    
+    class func requestt(uri: String, methot: HTTPMethod, parameters: [String: Any]?, success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
+        
+        let headers: HTTPHeaders = [:]
+        
+        let url = "\(baseUrl)\(uri)"
+        var encoding: ParameterEncoding!
+        
+        switch methot {
+        case .get:
+            encoding = URLEncoding.default
+        case .put:
+            encoding = URLEncoding.default
+        case .delete:
+            encoding = URLEncoding.default
+        default:
+            encoding = JSONEncoding.default
+            break
+        }
+        
+        // Original URL request
+        
+        Alamofire.request(url, method: methot, parameters: parameters, encoding: encoding, headers: headers)
+            .validate()
+            .responseJSON { response in
+                
+                // Success
+                if response.result.isSuccess {
+                    success()
+                    return
+                    //    }
+                }
+                
+                // Failure
+                if response.result.isFailure {
+                    if let value = response.data {
+                        let responseData = String.init(data: value, encoding: String.Encoding.utf8)
+                        
+                        if let error = Mapper<Error>().map(JSONString: responseData!) {
+                            failure(error)
+                            return
+                        }
+                        
+                    }
+                    
+                    if response.result.error != nil {
+                        failure(Error(code: "unknown_error", error: "Beklenmedik bir hata oluştu."))
+                        return
+                    }
+                    
+                }
+                
+                
+        }
+    }
+    
+}
